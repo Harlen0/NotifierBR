@@ -44,7 +44,7 @@ NotificarBR:LimparTudo()
 ## 💡 Examples
 
 ```lua
-local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/Harlen0/NotifierBR/refs/heads/main/open%20source%20for%20you%20meh"))()
+local NotificarBR = loadstring(game:HttpGet("https://raw.githubusercontent.com/Harlen0/NotifierBR/refs/heads/main/open%20source%20for%20you%20meh"))()
 
 -- Basic notifications
 NotificarBR:Sucesso("Connected", "Server connection successful!")
