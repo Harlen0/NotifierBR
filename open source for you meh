@@ -4,12 +4,17 @@ local NotificationLib = {}
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
-if playerGui:FindFirstChild("NotificationGui") then
-    playerGui:FindFirstChild("NotificationGui"):Destroy()
-end
+-- Limpar GUI existente de forma segura
+pcall(function()
+    local existingGui = playerGui:FindFirstChild("NotificationGui")
+    if existingGui then
+        existingGui:Destroy()
+    end
+end)
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "NotificationGui"
@@ -26,9 +31,30 @@ container.Parent = screenGui
 
 local activeNotifications = {}
 
+local function atualizarPosicoes()
+    local currentY = 0
+    for _, n in ipairs(activeNotifications) do
+        if n and n.Parent then
+            pcall(function()
+                local tweenPos = TweenService:Create(n, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    Position = UDim2.new(0, 0, 0, currentY)
+                })
+                tweenPos:Play()
+            end)
+            currentY = currentY + n.Size.Y.Offset + 10
+        end
+    end
+end
+
 local function criarNotificacao(titulo, mensagem, duracao, cor)
-    duracao = duracao or 5
+    -- Validação de parâmetros
+    titulo = tostring(titulo or "Notificação")
+    mensagem = tostring(mensagem or "")
+    duracao = tonumber(duracao) or 5
     cor = cor or Color3.fromRGB(52, 152, 219)
+    
+    -- Limitar duração
+    duracao = math.clamp(duracao, 1, 60)
     
     local notif = Instance.new("Frame")
     notif.Size = UDim2.new(1, 0, 0, 80)
@@ -51,6 +77,7 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     tituloLabel.TextSize = 16
     tituloLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     tituloLabel.TextXAlignment = Enum.TextXAlignment.Left
+    tituloLabel.TextTruncate = Enum.TextTruncate.AtEnd
     tituloLabel.Parent = notif
     
     local mensagemLabel = Instance.new("TextLabel")
@@ -74,6 +101,7 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     btnFechar.Font = Enum.Font.GothamBold
     btnFechar.TextSize = 20
     btnFechar.TextColor3 = Color3.fromRGB(150, 150, 150)
+    btnFechar.AutoButtonColor = false
     btnFechar.Parent = notif
     
     local uiCorner = Instance.new("UICorner")
@@ -85,6 +113,7 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     uiStroke.Thickness = 1
     uiStroke.Parent = notif
     
+    -- Calcular posição inicial
     local yPos = 0
     for _, n in ipairs(activeNotifications) do
         if n and n.Parent then
@@ -96,18 +125,26 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     
     table.insert(activeNotifications, notif)
     
+    -- Animação de entrada
     notif.Size = UDim2.new(1, 0, 0, 0)
     local tweenIn = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Size = UDim2.new(1, 0, 0, 80)
     })
     tweenIn:Play()
     
+    local isRemoving = false
     local function removerNotificacao()
+        if isRemoving then return end
+        isRemoving = true
+        
+        if not notif or not notif.Parent then return end
+        
         local tweenOut = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
             Size = UDim2.new(1, 0, 0, 0)
         })
         tweenOut:Play()
         tweenOut.Completed:Connect(function()
+            -- Remover da lista
             for i, n in ipairs(activeNotifications) do
                 if n == notif then
                     table.remove(activeNotifications, i)
@@ -115,33 +152,38 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
                 end
             end
             
-            local currentY = 0
-            for _, n in ipairs(activeNotifications) do
-                if n and n.Parent then
-                    local tweenPos = TweenService:Create(n, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                        Position = UDim2.new(0, 0, 0, currentY)
-                    })
-                    tweenPos:Play()
-                    currentY = currentY + n.Size.Y.Offset + 10
-                end
-            end
+            -- Atualizar posições
+            atualizarPosicoes()
             
-            notif:Destroy()
+            -- Destruir notificação
+            if notif and notif.Parent then
+                notif:Destroy()
+            end
         end)
     end
     
+    -- Hover effect no botão
+    btnFechar.MouseEnter:Connect(function()
+        if not isRemoving then
+            btnFechar.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+    end)
+    
+    btnFechar.MouseLeave:Connect(function()
+        if not isRemoving then
+            btnFechar.TextColor3 = Color3.fromRGB(150, 150, 150)
+        end
+    end)
+    
     btnFechar.MouseButton1Click:Connect(removerNotificacao)
     
-    task.spawn(function()
-        task.wait(duracao)
-        if notif and notif.Parent then
-            removerNotificacao()
-        end
+    -- Auto-remover após duração
+    task.delay(duracao, function()
+        removerNotificacao()
     end)
 end
 
---ass functions
-
+-- Funções públicas
 function NotificationLib:Notificar(titulo, mensagem, duracao)
     criarNotificacao(titulo, mensagem, duracao, Color3.fromRGB(52, 152, 219))
 end
@@ -174,4 +216,5 @@ function NotificationLib:LimparTudo()
     end
     activeNotifications = {}
 end
+
 return NotificationLib
