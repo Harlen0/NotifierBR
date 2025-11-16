@@ -7,7 +7,6 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Encontrar uma GUI existente do jogo para "esconder" dentro dela
 local function encontrarGuiHost()
     local guis = playerGui:GetChildren()
     for _, gui in ipairs(guis) do
@@ -24,7 +23,6 @@ end
 local hostGui = encontrarGuiHost()
 local container
 
--- Se não encontrou GUI host, criar de forma mais discreta
 if not hostGui then
     -- Aguardar um pouco antes de criar
     task.wait(2)
@@ -37,7 +35,6 @@ if not hostGui then
     hostGui = screenGui
 end
 
--- Limpar container antigo se existir
 pcall(function()
     local old = hostGui:FindFirstChild("_NC")
     if old then
@@ -47,7 +44,6 @@ end)
 
 task.wait(0.5)
 
--- Criar container com nome discreto
 container = Instance.new("Frame")
 container.Name = "_NC" -- Nome críptico
 container.Size = UDim2.new(0, 300, 1, 0)
@@ -60,7 +56,6 @@ local activeNotifications = {}
 local maxNotifications = 3
 
 local function criarNotificacao(titulo, mensagem, duracao, cor)
-    -- Limpar excesso
     while #activeNotifications >= maxNotifications do
         pcall(function()
             if activeNotifications[1] and activeNotifications[1].Parent then
@@ -76,7 +71,6 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     mensagem = tostring(mensagem or "")
     cor = cor or Color3.fromRGB(52, 152, 219)
     
-    -- Criar notificação de forma gradual
     local notif = Instance.new("Frame")
     notif.Name = "_N"
     notif.Size = UDim2.new(1, 0, 0, 0)
@@ -146,7 +140,6 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     uiStroke.Thickness = 1
     uiStroke.Parent = notif
     
-    -- Calcular posição
     local yPos = 0
     for _, n in ipairs(activeNotifications) do
         if n and n.Parent then
@@ -160,7 +153,6 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     notif.Parent = container
     table.insert(activeNotifications, notif)
     
-    -- Animar entrada
     task.spawn(function()
         pcall(function()
             TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
@@ -217,7 +209,6 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     end)
 end
 
--- API
 function NotificationLib:Notificar(titulo, mensagem, duracao)
     task.spawn(function()
         pcall(criarNotificacao, titulo, mensagem, duracao, Color3.fromRGB(52, 152, 219))
