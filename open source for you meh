@@ -4,79 +4,99 @@ local NotificationLib = {}
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
--- Tentar usar CoreGui primeiro (mais seguro)
-local success, parent = pcall(function()
-    return CoreGui
-end)
-
-if not success then
-    parent = Players.LocalPlayer:WaitForChild("PlayerGui")
-end
-
--- Limpar GUI antiga
-task.spawn(function()
-    pcall(function()
-        for _, gui in pairs(parent:GetChildren()) do
-            if gui.Name == "RobloxNotificationGui" and gui:IsA("ScreenGui") then
-                gui:Destroy()
+-- Encontrar uma GUI existente do jogo para "esconder" dentro dela
+local function encontrarGuiHost()
+    local guis = playerGui:GetChildren()
+    for _, gui in ipairs(guis) do
+        if gui:IsA("ScreenGui") and gui.Name ~= "NotificationGui" and gui.Name ~= "RobloxNotificationGui" then
+            -- Preferir GUIs que já existem do jogo
+            if not gui.Name:match("Notification") and not gui.Name:match("Custom") then
+                return gui
             end
         end
-    end)
+    end
+    return nil
+end
+
+local hostGui = encontrarGuiHost()
+local container
+
+-- Se não encontrou GUI host, criar de forma mais discreta
+if not hostGui then
+    -- Aguardar um pouco antes de criar
+    task.wait(2)
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "UI" -- Nome super genérico
+    screenGui.ResetOnSpawn = false
+    screenGui.DisplayOrder = 100
+    screenGui.Parent = playerGui
+    hostGui = screenGui
+end
+
+-- Limpar container antigo se existir
+pcall(function()
+    local old = hostGui:FindFirstChild("_NC")
+    if old then
+        old:Destroy()
+    end
 end)
 
-task.wait(0.3)
+task.wait(0.5)
 
--- Nome genérico para não chamar atenção
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "RobloxNotificationGui" -- Nome que parece oficial
-screenGui.ResetOnSpawn = false
-screenGui.DisplayOrder = 999 -- Fica por cima de tudo
-screenGui.Parent = parent
-
-local container = Instance.new("Frame")
-container.Name = "Container"
+-- Criar container com nome discreto
+container = Instance.new("Frame")
+container.Name = "_NC" -- Nome críptico
 container.Size = UDim2.new(0, 300, 1, 0)
 container.Position = UDim2.new(1, -310, 0, 10)
 container.BackgroundTransparency = 1
-container.Parent = screenGui
+container.ZIndex = 999
+container.Parent = hostGui
 
 local activeNotifications = {}
+local maxNotifications = 3
 
 local function criarNotificacao(titulo, mensagem, duracao, cor)
-    -- Limitar a 3 notificações ativas
-    while #activeNotifications >= 3 do
+    -- Limpar excesso
+    while #activeNotifications >= maxNotifications do
         pcall(function()
-            if activeNotifications[1] then
+            if activeNotifications[1] and activeNotifications[1].Parent then
                 activeNotifications[1]:Destroy()
             end
             table.remove(activeNotifications, 1)
         end)
-        task.wait(0.1)
+        task.wait(0.05)
     end
     
     duracao = tonumber(duracao) or 5
-    titulo = tostring(titulo or "Notification")
+    titulo = tostring(titulo or "")
     mensagem = tostring(mensagem or "")
     cor = cor or Color3.fromRGB(52, 152, 219)
     
+    -- Criar notificação de forma gradual
     local notif = Instance.new("Frame")
-    notif.Name = "Notif"
+    notif.Name = "_N"
     notif.Size = UDim2.new(1, 0, 0, 0)
     notif.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     notif.BorderSizePixel = 0
     notif.ClipsDescendants = true
+    notif.ZIndex = 1000
+
+    task.wait(0.02) -- Micro delay entre criações
 
     local barra = Instance.new("Frame")
-    barra.Name = "Bar"
     barra.Size = UDim2.new(0, 4, 1, 0)
     barra.BackgroundColor3 = cor
     barra.BorderSizePixel = 0
+    barra.ZIndex = 1001
     barra.Parent = notif
     
+    task.wait(0.02)
+    
     local tituloLabel = Instance.new("TextLabel")
-    tituloLabel.Name = "Title"
     tituloLabel.Size = UDim2.new(1, -50, 0, 25)
     tituloLabel.Position = UDim2.new(0, 15, 0, 8)
     tituloLabel.BackgroundTransparency = 1
@@ -85,10 +105,12 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     tituloLabel.TextSize = 16
     tituloLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     tituloLabel.TextXAlignment = Enum.TextXAlignment.Left
+    tituloLabel.ZIndex = 1002
     tituloLabel.Parent = notif
     
+    task.wait(0.02)
+    
     local mensagemLabel = Instance.new("TextLabel")
-    mensagemLabel.Name = "Message"
     mensagemLabel.Size = UDim2.new(1, -50, 0, 40)
     mensagemLabel.Position = UDim2.new(0, 15, 0, 35)
     mensagemLabel.BackgroundTransparency = 1
@@ -99,10 +121,12 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     mensagemLabel.TextXAlignment = Enum.TextXAlignment.Left
     mensagemLabel.TextYAlignment = Enum.TextYAlignment.Top
     mensagemLabel.TextWrapped = true
+    mensagemLabel.ZIndex = 1002
     mensagemLabel.Parent = notif
     
+    task.wait(0.02)
+    
     local btnFechar = Instance.new("TextButton")
-    btnFechar.Name = "Close"
     btnFechar.Size = UDim2.new(0, 30, 0, 30)
     btnFechar.Position = UDim2.new(1, -35, 0, 5)
     btnFechar.BackgroundTransparency = 1
@@ -110,6 +134,7 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     btnFechar.Font = Enum.Font.GothamBold
     btnFechar.TextSize = 20
     btnFechar.TextColor3 = Color3.fromRGB(150, 150, 150)
+    btnFechar.ZIndex = 1003
     btnFechar.Parent = notif
     
     local uiCorner = Instance.new("UICorner")
@@ -121,7 +146,7 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     uiStroke.Thickness = 1
     uiStroke.Parent = notif
     
-    -- Posição calculada
+    -- Calcular posição
     local yPos = 0
     for _, n in ipairs(activeNotifications) do
         if n and n.Parent then
@@ -130,32 +155,33 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
     end
     
     notif.Position = UDim2.new(0, 0, 0, yPos)
+    
+    task.wait(0.05)
     notif.Parent = container
     table.insert(activeNotifications, notif)
     
-    -- Animação suave
+    -- Animar entrada
     task.spawn(function()
         pcall(function()
-            local tween = TweenService:Create(notif, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                 Size = UDim2.new(1, 0, 0, 80)
-            })
-            tween:Play()
+            }):Play()
         end)
     end)
     
     local isRemoving = false
     
-    local function removerNotificacao()
-        if isRemoving then return end
+    local function remover()
+        if isRemoving or not notif or not notif.Parent then return end
         isRemoving = true
         
         task.spawn(function()
             pcall(function()
-                local tweenOut = TweenService:Create(notif, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                local tw = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                     Size = UDim2.new(1, 0, 0, 0)
                 })
-                tweenOut:Play()
-                tweenOut.Completed:Wait()
+                tw:Play()
+                tw.Completed:Wait()
                 
                 for i, n in ipairs(activeNotifications) do
                     if n == notif then
@@ -164,12 +190,11 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
                     end
                 end
                 
-                -- Reposicionar
                 local currentY = 0
                 for _, n in ipairs(activeNotifications) do
                     if n and n.Parent then
                         pcall(function()
-                            TweenService:Create(n, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+                            TweenService:Create(n, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                                 Position = UDim2.new(0, 0, 0, currentY)
                             }):Play()
                         end)
@@ -177,22 +202,22 @@ local function criarNotificacao(titulo, mensagem, duracao, cor)
                     end
                 end
                 
-                notif:Destroy()
+                task.wait(0.05)
+                if notif then notif:Destroy() end
             end)
         end)
     end
     
-    btnFechar.MouseButton1Click:Connect(removerNotificacao)
+    btnFechar.MouseButton1Click:Connect(remover)
     
-    -- Auto-remover
     task.delay(duracao, function()
         if not isRemoving then
-            removerNotificacao()
+            remover()
         end
     end)
 end
 
--- API pública com proteção
+-- API
 function NotificationLib:Notificar(titulo, mensagem, duracao)
     task.spawn(function()
         pcall(criarNotificacao, titulo, mensagem, duracao, Color3.fromRGB(52, 152, 219))
@@ -233,9 +258,7 @@ function NotificationLib:LimparTudo()
     task.spawn(function()
         pcall(function()
             for _, notif in ipairs(activeNotifications) do
-                if notif then
-                    notif:Destroy()
-                end
+                if notif then notif:Destroy() end
             end
             activeNotifications = {}
         end)
