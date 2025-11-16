@@ -9,7 +9,7 @@
 ## 📦 Installation
 
 ```lua
-local Notify = loadstring(game:HttpGet("YOUR_RAW_LINK_HERE"))()
+local NotificarBR = loadstring(game:HttpGet("https://raw.githubusercontent.com/Harlen0/NotifierBR/refs/heads/main/open%20source%20for%20you%20meh"))()
 ```
 
 ---
@@ -18,25 +18,25 @@ local Notify = loadstring(game:HttpGet("YOUR_RAW_LINK_HERE"))()
 
 ```lua
 -- Success (Green)
-Notify:Sucesso("Title", "Message", 5)
+NotificarBR:Sucesso("Title", "Message", 5)
 
 -- Error (Red)
-Notify:Erro("Title", "Message", 5)
+NotificarBR:Erro("Title", "Message", 5)
 
 -- Warning (Yellow)
-Notify:Aviso("Title", "Message", 5)
+NotificarBR:Aviso("Title", "Message", 5)
 
 -- Info (Blue)
-Notify:Info("Title", "Message", 5)
+NotificarBR:Info("Title", "Message", 5)
 
 -- Default
-Notify:Notificar("Title", "Message", 5)
+NotificarBR:Notificar("Title", "Message", 5)
 
 -- Custom Color
-Notify:Custom("Title", "Message", 5, Color3.fromRGB(255, 0, 255))
+NotificarBR:Custom("Title", "Message", 5, Color3.fromRGB(255, 0, 255))
 
 -- Clear All
-Notify:LimparTudo()
+NotificarBR:LimparTudo()
 ```
 
 ---
@@ -44,12 +44,12 @@ Notify:LimparTudo()
 ## 💡 Examples
 
 ```lua
-local Notify = loadstring(game:HttpGet("YOUR_RAW_LINK_HERE"))()
+local Notify = loadstring(game:HttpGet("https://raw.githubusercontent.com/Harlen0/NotifierBR/refs/heads/main/open%20source%20for%20you%20meh"))()
 
 -- Basic notifications
-Notify:Sucesso("Connected", "Server connection successful!")
-Notify:Erro("Failed", "Could not load data")
-Notify:Aviso("Warning", "Low health detected")
+NotificarBR:Sucesso("Connected", "Server connection successful!")
+NotificarBR:Erro("Failed", "Could not load data")
+NotificarBR:Aviso("Warning", "Low health detected")
 
 -- With error handling
 local success, err = pcall(function()
@@ -57,13 +57,13 @@ local success, err = pcall(function()
 end)
 
 if success then
-    Notify:Sucesso("Success", "Code executed!")
+    NotificarBR:Sucesso("Success", "Code executed!")
 else
-    Notify:Erro("Error", tostring(err))
+    NotificarBR:Erro("Error", tostring(err))
 end
 
 -- Custom colors
-Notify:Custom("Special", "Gold notification!", 5, Color3.fromRGB(255, 215, 0))
+NotificarBR:Custom("Special", "Gold notification!", 5, Color3.fromRGB(255, 215, 0))
 ```
 
 ---
@@ -105,7 +105,7 @@ Color3.fromRGB(255, 215, 0)    -- Gold
 ## 📦 Instalação
 
 ```lua
-local Notificar = loadstring(game:HttpGet("SEU_LINK_RAW_AQUI"))()
+local NotificarBR = loadstring(game:HttpGet("https://raw.githubusercontent.com/Harlen0/NotifierBR/refs/heads/main/open%20source%20for%20you%20meh"))()
 ```
 
 ---
@@ -114,25 +114,25 @@ local Notificar = loadstring(game:HttpGet("SEU_LINK_RAW_AQUI"))()
 
 ```lua
 -- Sucesso (Verde)
-Notificar:Sucesso("Título", "Mensagem", 5)
+NotificarBR:Sucesso("Título", "Mensagem", 5)
 
 -- Erro (Vermelho)
-Notificar:Erro("Título", "Mensagem", 5)
+NotificarBR:Erro("Título", "Mensagem", 5)
 
 -- Aviso (Amarelo)
-Notificar:Aviso("Título", "Mensagem", 5)
+NotificarBR:Aviso("Título", "Mensagem", 5)
 
 -- Informação (Azul)
-Notificar:Info("Título", "Mensagem", 5)
+NotificarBR:Info("Título", "Mensagem", 5)
 
 -- Padrão
-Notificar:Notificar("Título", "Mensagem", 5)
+NotificarBR:Notificar("Título", "Mensagem", 5)
 
 -- Cor Customizada
-Notificar:Custom("Título", "Mensagem", 5, Color3.fromRGB(255, 0, 255))
+NotificarBR:Custom("Título", "Mensagem", 5, Color3.fromRGB(255, 0, 255))
 
 -- Limpar Tudo
-Notificar:LimparTudo()
+NotificarBR:LimparTudo()
 ```
 
 ---
@@ -140,12 +140,12 @@ Notificar:LimparTudo()
 ## 💡 Exemplos
 
 ```lua
-local Notificar = loadstring(game:HttpGet("SEU_LINK_RAW_AQUI"))()
+local NotificarBR = loadstring(game:HttpGet("https://raw.githubusercontent.com/Harlen0/NotifierBR/refs/heads/main/open%20source%20for%20you%20meh"))()
 
 -- Notificações básicas
-Notificar:Sucesso("Conectado", "Conexão com servidor bem-sucedida!")
-Notificar:Erro("Falhou", "Não foi possível carregar dados")
-Notificar:Aviso("Atenção", "Vida baixa detectada")
+NotificarBR:Sucesso("Conectado", "Conexão com servidor bem-sucedida!")
+NotificarBR:Erro("Falhou", "Não foi possível carregar dados")
+NotificarBR:Aviso("Atenção", "Vida baixa detectada")
 
 -- Com tratamento de erro
 local sucesso, erro = pcall(function()
@@ -153,13 +153,13 @@ local sucesso, erro = pcall(function()
 end)
 
 if sucesso then
-    Notificar:Sucesso("Sucesso", "Código executado!")
+    NotificarBR:Sucesso("Sucesso", "Código executado!")
 else
-    Notificar:Erro("Erro", tostring(erro))
+    NotificarBR:Erro("Erro", tostring(erro))
 end
 
 -- Cores personalizadas
-Notificar:Custom("Especial", "Notificação dourada!", 5, Color3.fromRGB(255, 215, 0))
+NotificarBR:Custom("Especial", "Notificação dourada!", 5, Color3.fromRGB(255, 215, 0))
 ```
 
 ---
